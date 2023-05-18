@@ -1,3 +1,4 @@
 1. Pour debug ce shellcode, je fais d'abord un hexdump pour l'analyser. Evidemment, rien d'intéressant. J'en fais ensuite un .hex pour l'examiner sous ghidra.
 
 2. J'ai reconstruit le flow graph de manière lisible
+3. Bien que le graphe soit lisible, Nous ne comprenons pas plus ce qu'il fait. Il doit être chiffré. Par conséquent, voyons voir comment cela se passe avec MIASM
