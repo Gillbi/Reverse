@@ -18,6 +18,12 @@ def code_sentinelle(jitter):
     jitter.pc = 0
     return True
 
+def dump_shellcode(jitter):
+    jitter.vm.get_mem(run_addr, len(data))
+    open("dump.bin", "wb").write(dump)
+    return False
+
+
 loc_db = LocationDB()
 
 myjit = Machine("x86_32").jitter(loc_db, args.jitter)
@@ -32,7 +38,7 @@ myjit.set_trace_log(trace_regs=False, trace_instr=False  , trace_new_blocks=True
 #myjit.set_trace_log()
 myjit.push_uint32_t(0x1337beef)
 
-myjit.add_breakpoint(0x1337beef, code_sentinelle)
+#myjit.add_breakpoint(0x40000057, dump_shellcode)
 myjit.cpu.EAX = run_addr
 
 myjit.run(run_addr)

@@ -2,3 +2,11 @@
 
 2. J'ai reconstruit le flow graph de manière lisible
 3. Bien que le graphe soit lisible, Nous ne comprenons pas plus ce qu'il fait. Il doit être chiffré. Par conséquent, voyons voir comment cela se passe avec MIASM
+
+
+4. Pas de nouvelles sur miasm. J'ai repris le cours avec le binaire encodé qui se réecrit lui même pour voir mais pas de succès. Ca bloque toujours sur un Access violation en 4000057 Sans plus d'info.
+
+5. Je me suis rendu compte avoir mal géré: je n'avais pas besoin de filer le shellcode exfiltré via hexdump dans ghidra. Je pouvais le faire direct et avoir mon code. J'analyse donc pourquoi celui ci bloque en 4000057 maintenant que j'ai les bonnes addresses.
+
+
+0x4000057 mene a un return. Forcément il bloquait vu que c'était la fin du programme. Il faut donc que je fasse en sorte qu'il passe cette étape.
