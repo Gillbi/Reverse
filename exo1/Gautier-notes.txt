@@ -14,7 +14,11 @@
 Le premier bloque est simple: Du nop code, on met le PEB dans EDX, on le fait pointer vers la variable "BeingDebugged" et si elle n'est pas égale à 0 (donc si le programme detecte qu'on est en train de le débugger), il coupe le programme.
 
 
+J'ai aussi pu voir en cherchant ce que voulais dire FS:0x30, qu'ensuite on vérifiait le nombre de processeur. Si le résultat est en dessous de 2 (JBE 0x2), on sort de nouveau.
 
+Une fois que ces deux étapes sont passés, on part dans une autre fonction qui boucle sur lui même. Surement la fonction de déchiffrement.
+
+Une fois que c'est fait, une dernière fonction est appelé qui elle en appelle 3 autres.
 
 
 
@@ -23,3 +27,8 @@ Le premier bloque est simple: Du nop code, on met le PEB dans EDX, on le fait po
 1. Conditions pour que le shellcode se lance entièrement.
 
 Première condition: le programme ne doit pas détecter qu'il est debuggé
+
+2e condition (supposition): le PEB en 0x64 est NumberOfProcessors. Donc il faut minimum 2 processeurs pour fonctionner
+
+2. Quelles sont les structures testées ?
+PEB, BeingDebugged, NumberOfProcessors, LDR
