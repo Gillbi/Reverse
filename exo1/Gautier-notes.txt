@@ -10,3 +10,16 @@
 
 
 0x4000057 mene a un return. Forcément il bloquait vu que c'était la fin du programme. Il faut donc que je fasse en sorte qu'il passe cette étape.
+
+Le premier bloque est simple: Du nop code, on met le PEB dans EDX, on le fait pointer vers la variable "BeingDebugged" et si elle n'est pas égale à 0 (donc si le programme detecte qu'on est en train de le débugger), il coupe le programme.
+
+
+
+
+
+
+
+---------------------------------------------------
+1. Conditions pour que le shellcode se lance entièrement.
+
+Première condition: le programme ne doit pas détecter qu'il est debuggé
