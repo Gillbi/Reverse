@@ -31,4 +31,10 @@ Première condition: le programme ne doit pas détecter qu'il est debuggé
 2e condition (supposition): le PEB en 0x64 est NumberOfProcessors. Donc il faut minimum 2 processeurs pour fonctionner
 
 2. Quelles sont les structures testées ?
-PEB, BeingDebugged, NumberOfProcessors, LDR
+PEB, BeingDebugged, NumberOfProcessors, LDR, inMemoryOrderModuleList, ProcessParameters
+
+On lit les ProcessParameters
+
+3. Le shellcode prend deux dll (ESI et EDI) et les passe par deux méthode de hash différents
+
+4.
