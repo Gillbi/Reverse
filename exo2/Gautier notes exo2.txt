@@ -1,3 +1,7 @@
-1. Nous sommes prévenu que ce binaire est paqué. A l'aide de UPX, nous allons dépaquer ce binaire.
+Nous sommes prévenu que ce binaire est paqué. A l'aide de UPX, nous allons dépaquer ce binaire.
 
-2. Le fichier est visiblement pas paqué par upx.
+Le fichier est visiblement pas paqué par upx.
+
+Après quelques recherches je décide de dumper l'exe dans miasm avec vm2pe. Pour voir ce que ça fait.
+
+Niquel! En ouvrant le dump dans ida, on voit au début le "bravo"! Le binaire est donc dépaqué. Pas entièrement cependant étant donné qu'il est impossible de lire les fonctions qui permettent d'arriver à ce "bravo" pour l'instant.
