@@ -45,6 +45,11 @@ def kernel32_CreateProcessW(jitter):
     print(get_win_str_w(jitter, args[0]))
     jitter.func_ret_stdcall(ret_ad, 1)
 
+
+def kernel32_Beep(jitter):
+    return True
+
+
 # Parse arguments
 parser = Sandbox_Win_x86_32.parser(description="PE sandboxer")
 parser.add_argument("filename", help="PE Filename")
