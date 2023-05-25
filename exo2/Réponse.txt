@@ -1,0 +1,7 @@
+Type de paquage: ASPack
+
+outils: IDA, x32dbg, Scylla
+
+méthode de dépaquage: breakpoint sur VirtualAlloc, VirtualProtect et LoadLibraryW. Run du programme et inspection des dump hexa jusqu'avoir un binaire avec beaucoups de données dans les dumps. Vérification des référence avec présences de beaucoup de strings
+
+instruction pour afficher "Bravo!": lancer l'exe dans cmd avec "cclfx" en paramètre.
