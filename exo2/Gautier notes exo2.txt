@@ -5,3 +5,8 @@ Le fichier est visiblement pas paqué par upx.
 Après quelques recherches je décide de dumper l'exe dans miasm avec vm2pe. Pour voir ce que ça fait.
 
 Niquel! En ouvrant le dump dans ida, on voit au début le "bravo"! Le binaire est donc dépaqué. Pas entièrement cependant étant donné qu'il est impossible de lire les fonctions qui permettent d'arriver à ce "bravo" pour l'instant.
+
+J'ai voulu cherché voir si le packer était custom ou non. Histoire de trouver un indice. Je l'ai passé donc dans DiE et en effet, il est packé avec ASPacker. Plus qu'a trouver les tutoriels.
+
+
+
