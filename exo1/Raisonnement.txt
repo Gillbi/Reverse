@@ -1,17 +1,36 @@
-Nous sommes prévenu que ce binaire est paqué. A l'aide de UPX, nous allons dépaquer ce binaire.
+Pour debug ce shellcode, je fais d'abord un hexdump pour l'analyser. Evidemment, rien d'intéressant. J'en fais ensuite un .hex pour l'examiner sous ghidra.
 
-Le fichier est visiblement pas paqué par upx.
+J'ai reconstruit le flow graph de manière lisible
 
-Après quelques recherches je décide de dumper l'exe dans miasm avec vm2pe. Pour voir ce que ça fait.
+Bien que le graphe soit lisible, Nous ne comprenons pas plus ce qu'il fait. Il doit être chiffré. Par conséquent, voyons voir comment cela se passe avec MIASM
 
-Niquel! En ouvrant le dump dans ida, on voit au début le "bravo"! Le binaire est donc dépaqué. Pas entièrement cependant étant donné qu'il est impossible de lire les fonctions qui permettent d'arriver à ce "bravo" pour l'instant.
+Pas de nouvelles sur miasm. J'ai repris le cours avec le binaire encodé qui se réecrit lui même pour voir mais pas de succès. Ca bloque toujours sur un Access violation en 4000057 Sans plus d'info.
 
-J'ai voulu cherché voir si le packer était custom ou non. Histoire de trouver un indice. Je l'ai passé donc dans DiE et en effet, il est packé avec ASPacker. Plus qu'a trouver les tutoriels.
-
-
-Comme le fait le tutoriel, je me suis aidé de IDA et de x32dbg et placé des breakpoints à 3 endroits précis. Ainsi, je pouvais débugger au fur et a mesure sans prendre trop de temps. Je les ai posés sur les fonctions VirtualAlloc, VirtualProtect et LoadLibraryW. J'ai vérifié les dump hexa au fur et a mesure de chaque fin de virtualAlloc jusqu'au moment où, en défilant, je remarque un dump avec beaucoup de données.
-En effet, en regardant le code, je retrouve le "bravo" etc. Sauf que cette fois les appels mènent bien à des fonctions. Le binaire est donc dépaqué!! Je récupère les imports, le dump avec Scylla, répare le dump au cas où et plus qu'a analyser sous IDA.
+Je me suis rendu compte avoir mal géré: je n'avais pas besoin de filer le shellcode exfiltré via hexdump dans ghidra. Je pouvais le faire direct et avoir mon code. J'analyse donc pourquoi celui ci bloque en 4000057 maintenant que j'ai les bonnes addresses.
 
 
-Dans le code dépaqué, nous pouvons voir que la fonction lstrcmpA est appelée. Avec eax = ccflx et ecx à autre chose. Après on a un cmp eax,0 puis un jne qui mène à un ret. Sachant que lstrcmpA détermine si A est inférieur à B et renvoie 0 si A et B sont égaux, j'en déduis qu'il faut que ecx soit égale à ccflx.
-Ensuite la fonction appelée après le jne est un MessageBox avec écrit Bravo. Il faut donc écrire cclfx mais où. J'essaye en ligne de commande. Je lance donc l'output_002.exe avec cclfx en paramètre et c'est bon! Bravo est affiché!
+0x4000057 mene a un return. Forcément il bloquait vu que c'était la fin du programme. Il faut donc que je fasse en sorte qu'il passe cette étape.
+
+Le premier bloque est simple: Du nop code, on met le PEB dans EDX, on le fait pointer vers la variable "BeingDebugged" et si elle n'est pas égale à 0 (donc si le programme detecte qu'on est en train de le débugger), il coupe le programme.
+
+
+J'ai aussi pu voir en cherchant ce que voulais dire FS:0x30, qu'ensuite on vérifiait le nombre de processeur. Si le résultat est en dessous de 2 (JBE 0x2), on sort de nouveau.
+
+Une fois que ces deux étapes sont passés, on part dans une autre fonction qui boucle sur lui même. Surement la fonction de déchiffrement.
+
+Une fois que c'est fait, une dernière fonction est appelé qui elle en appelle 3 autres.
+
+
+La première fonction se lançant après les condition sert à déchiffrer. Elle est appelée 2 fois et prend en paramètre ESI+C3 la première fois
+et ESI+CE la deuxième. Elle renvoit son résultat dans EDI.
+Une fois les deux paramètres déchiffrés, le résultat dans le dump hexa à l'emplacement de EDI est: "cclfxvzjit Code:"
+Quoi que ça veuille dire.
+
+La 3e fonction prend en paramètres 5 variables:
+578D8483, 1361C78E, 0, ESI, EDI, 0.
+Cette fonction appelle 2 autres fonctions. Dans la première, elle parcours les DLL qu'elle utilise et les hash. Elle compare ce hash à 578D8483, et si les deux hash sont différents, elle recommence avec la DLL suivante.
+Visiblement aucune des DLL ne correspond au hash et la fonction essaye de lire ce qu'il y a à l'adresse 0x00000000 et inévitablement crash avec une erreur "access violation". J'ai donc cherché statiquement dans IDA et ghidra ce que faisait la dernière fonction.
+
+J'ai pu voir qu'elle effectuait un hash lui aussi. Différent de la fonction précédente et le compare à 1361C78E. Vu les instructions précédentes, j'imagine qu'elle saute dans la DLL trouvé avec la première fonction et parcours les structures ça l'intérieure afin d'effectuer ce qu'il veut dedans.
+
+J'ai remarqué qu'x32dbg avait commenté dans l'une des valeurs alloués  BaseThreadInitThunk. Qui est la première fonction dans Kernel32.dll d'après la liste de symboles. J'imagine que le shellcode s'en sert pour effectuer des instructions appartenant dans le TEB mais je ne peux pas en dire plus vu la complexité des instructions données à la fin de la boucle et les valeurs contenu dans ses instructions. Introuvable sans avoir trouvé le hash de la première fonction car jouant avec la valeur de esp et ebp.

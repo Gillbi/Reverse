@@ -1,0 +1,17 @@
+Nous sommes prévenu que ce binaire est paqué. A l'aide de UPX, nous allons dépaquer ce binaire.
+
+Le fichier est visiblement pas paqué par upx.
+
+Après quelques recherches je décide de dumper l'exe dans miasm avec vm2pe. Pour voir ce que ça fait.
+
+Niquel! En ouvrant le dump dans ida, on voit au début le "bravo"! Le binaire est donc dépaqué. Pas entièrement cependant étant donné qu'il est impossible de lire les fonctions qui permettent d'arriver à ce "bravo" pour l'instant.
+
+J'ai voulu cherché voir si le packer était custom ou non. Histoire de trouver un indice. Je l'ai passé donc dans DiE et en effet, il est packé avec ASPacker. Plus qu'a trouver les tutoriels.
+
+
+Comme le fait le tutoriel, je me suis aidé de IDA et de x32dbg et placé des breakpoints à 3 endroits précis. Ainsi, je pouvais débugger au fur et a mesure sans prendre trop de temps. Je les ai posés sur les fonctions VirtualAlloc, VirtualProtect et LoadLibraryW. J'ai vérifié les dump hexa au fur et a mesure de chaque fin de virtualAlloc jusqu'au moment où, en défilant, je remarque un dump avec beaucoup de données.
+En effet, en regardant le code, je retrouve le "bravo" etc. Sauf que cette fois les appels mènent bien à des fonctions. Le binaire est donc dépaqué!! Je récupère les imports, le dump avec Scylla, répare le dump au cas où et plus qu'a analyser sous IDA.
+
+
+Dans le code dépaqué, nous pouvons voir que la fonction lstrcmpA est appelée. Avec eax = ccflx et ecx à autre chose. Après on a un cmp eax,0 puis un jne qui mène à un ret. Sachant que lstrcmpA détermine si A est inférieur à B et renvoie 0 si A et B sont égaux, j'en déduis qu'il faut que ecx soit égale à ccflx.
+Ensuite la fonction appelée après le jne est un MessageBox avec écrit Bravo. Il faut donc écrire cclfx mais où. J'essaye en ligne de commande. Je lance donc l'output_002.exe avec cclfx en paramètre et c'est bon! Bravo est affiché!
